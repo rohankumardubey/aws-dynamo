@@ -9,12 +9,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Getter;
+import okhttp3.Request;
+import okhttp3.Response;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import static com.amazonaws.dynamo.Constants.Constant.application_json;
@@ -138,20 +141,18 @@ public class DatabaseCRUDOperation<T> implements Serializable {
             DatabaseCRUDOperation<Long> updateRequestNew = DatabaseCRUDOperation.update((long) 4240343, updateFields, 114485197201L + i);
 
             RestService.execute(webServerUrl, updateRequestNew, application_json);
-//            CompletableFuture<Set<Object>> resultFuture = new CompletableFuture<>();
-//            CompletableFuture.runAsync(() -> {
-//                Request response;
-//                try {
-//                    response = RestService.execute(webServerUrl,updateRequestNew,application_json);
-//                } catch (IOException e) {
-//                    throw new RuntimeException(e);
-//                } catch (ParseException e) {
-//                    throw new RuntimeException(e);
-//                } catch (URISyntaxException e) {
-//                    throw new RuntimeException(e);
-//                }
-//                System.out.println("Web server response: " + response);
-//            }).thenAccept((response) -> resultFuture.complete(Collections.singleton(null)));
+
+
+            CompletableFuture<Set<Object>> resultFuture = new CompletableFuture<>();
+            CompletableFuture.runAsync(() -> {
+                Response response;
+                try {
+                    response = RestService.execute(webServerUrl,updateRequestNew,application_json);
+                } catch (IOException | URISyntaxException | ParseException | ExecutionException | InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                System.out.println("Web server response: " + response);
+            }).thenAccept((response) -> resultFuture.complete(Collections.singleton(null)));
 
 //            Request body = RestService.execute(webServerUrl,updateRequestNew,application_json);
 //            OkHttpResponseFuture callback = new OkHttpResponseFuture();
